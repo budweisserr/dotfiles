@@ -1,124 +1,75 @@
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
+local map = vim.keymap.set
 
-local keymap = vim.keymap
-local terminal = require("core.terminal")
-
-local function comment_parts()
-	local commentstring = vim.bo.commentstring ~= "" and vim.bo.commentstring or "# %s"
-	local left, right = commentstring:match("^(.*)%%s(.*)$")
-	return vim.trim(left or "#"), vim.trim(right or "")
+local function open_terminal(split_cmd)
+    vim.cmd(split_cmd)
+    if split_cmd == "vsplit" then
+        vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.2))
+    else
+        vim.cmd("resize " .. math.floor(vim.o.lines * 0.3))
+    end
+    vim.cmd.terminal()
+    vim.cmd.startinsert()
 end
 
-local function escape_pattern(text)
-	return text:gsub("([^%w])", "%%%1")
-end
+map("i", "<C-b>", "<ESC>^i", { desc = "Move beginning of line" })
+map("i", "<C-e>", "<End>", { desc = "Move end of line" })
+map("i", "<C-h>", "<Left>", { desc = "Move left" })
+map("i", "<C-l>", "<Right>", { desc = "Move right" })
+map("i", "<C-j>", "<Down>", { desc = "Move down" })
+map("i", "<C-k>", "<Up>", { desc = "Move up" })
 
-local function toggle_comments(line1, line2)
-	local left, right = comment_parts()
-	local lines = vim.api.nvim_buf_get_lines(0, line1 - 1, line2, false)
+map("n", "<C-h>", "<C-w>h", { desc = "Switch window left" })
+map("n", "<C-l>", "<C-w>l", { desc = "Switch window right" })
+map("n", "<C-j>", "<C-w>j", { desc = "Switch window down" })
+map("n", "<C-k>", "<C-w>k", { desc = "Switch window up" })
 
-	for i, line in ipairs(lines) do
-		local indent = line:match("^%s*") or ""
-		local content = line:sub(#indent + 1)
-		local uncommented = content:gsub("^" .. escape_pattern(left) .. "%s?", "", 1)
+map("n", "<Esc>", "<cmd>noh<CR>", { desc = "Clear highlights" })
+map("n", "<C-s>", "<cmd>w<CR>", { desc = "Save file" })
+map("n", "<C-c>", "<cmd>%y+<CR>", { desc = "Copy whole file" })
 
-		if right ~= "" then
-			uncommented = uncommented:gsub("%s?" .. escape_pattern(right) .. "$", "", 1)
-		end
+map("n", "<leader>n", "<cmd>set nu!<CR>", { desc = "Toggle line number" })
+map("n", "<leader>rn", "<cmd>set rnu!<CR>", { desc = "Toggle relative number" })
 
-		if uncommented ~= content then
-			lines[i] = indent .. uncommented
-		else
-			local suffix = right ~= "" and (" " .. right) or ""
-			lines[i] = string.format("%s%s %s%s", indent, left, content, suffix)
-		end
-	end
+map({ "n", "x" }, "<leader>fm", function()
+    require("configs.conform").format({ lsp_fallback = true })
+end, { desc = "Format file" })
 
-	vim.api.nvim_buf_set_lines(0, line1 - 1, line2, false, lines)
-end
+map("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "Diagnostic loclist" })
 
-keymap.set("i", "<C-b>", "<ESC>^i", { desc = "move beginning of line" })
-keymap.set("i", "<C-e>", "<End>", { desc = "move end of line" })
-keymap.set("i", "<C-h>", "<Left>", { desc = "move left" })
-keymap.set("i", "<C-l>", "<Right>", { desc = "move right" })
-keymap.set("i", "<C-j>", "<Down>", { desc = "move down" })
-keymap.set("i", "<C-k>", "<Up>", { desc = "move up" })
+map("n", "<leader>b", "<cmd>enew<CR>", { desc = "New buffer" })
+map("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "Close buffer" })
 
-keymap.set("n", "<C-h>", "<C-w>h", { desc = "switch window left" })
-keymap.set("n", "<C-l>", "<C-w>l", { desc = "switch window right" })
-keymap.set("n", "<C-j>", "<C-w>j", { desc = "switch window down" })
-keymap.set("n", "<C-k>", "<C-w>k", { desc = "switch window up" })
+map("n", "<leader>/", "gcc", { desc = "Toggle comment", remap = true })
+map("v", "<leader>/", "gc", { desc = "Toggle comment", remap = true })
 
-keymap.set("n", ";", ":", { desc = "CMD enter command mode" })
-keymap.set("i", "jk", "<ESC>")
-keymap.set("n", "<Esc>", "<cmd>noh<CR>", { desc = "general clear highlights" })
+map("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "NvimTree toggle" })
+map("n", "<leader>e", "<cmd>NvimTreeFocus<CR>", { desc = "NvimTree focus" })
 
-keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "general save file" })
-keymap.set("n", "<C-c>", "<cmd>%y+<CR>", { desc = "general copy whole file" })
+map("n", "<leader>fw", "<cmd>Telescope live_grep<CR>", { desc = "Live grep" })
+map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "Find buffers" })
+map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
+map("n", "<leader>ma", "<cmd>Telescope marks<CR>", { desc = "Find marks" })
+map("n", "<leader>fo", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
+map("n", "<leader>fz", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { desc = "Current buffer search" })
+map("n", "<leader>cm", "<cmd>Telescope git_commits<CR>", { desc = "Git commits" })
+map("n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
+map("n", "<leader>ff", "<cmd>Telescope find_files<CR>", { desc = "Find files" })
+map("n", "<leader>fa", "<cmd>Telescope find_files follow=true no_ignore=true hidden=true<CR>", { desc = "Find all files" })
 
-keymap.set("n", "<leader>n", "<cmd>set nu!<CR>", { desc = "toggle line number" })
-keymap.set("n", "<leader>rn", "<cmd>set rnu!<CR>", { desc = "toggle relative number" })
-keymap.set("n", "<leader>ch", function()
-	require("which-key").show({ global = true })
-end, { desc = "toggle nvcheatsheet" })
+map("n", ";", ":", { desc = "CMD enter command mode" })
+map("i", "jk", "<ESC>")
 
-keymap.set({ "n", "x" }, "<leader>fm", function()
-	require("conform").format({ lsp_fallback = true })
-end, { desc = "general format file" })
+map("n", "<leader>cd", "<cmd>Cord toggle<CR>", { desc = "Toggle cord presence" })
+map("n", "<leader>ci", "<cmd>Cord idle toggle<CR>", { desc = "Toggle cord idle" })
 
-keymap.set("n", "<leader>ds", vim.diagnostic.setloclist, { desc = "LSP diagnostic loclist" })
+map("n", "<leader>wr", "<cmd>AutoSession restore<CR>", { desc = "Restore session for cwd" })
+map("n", "<leader>ws", "<cmd>AutoSession save<CR>", { desc = "Save session for auto session root dir" })
 
-keymap.set("n", "<leader>b", "<cmd>enew<CR>", { desc = "buffer new" })
-keymap.set("n", "<tab>", "<cmd>BufferLineCycleNext<CR>", { desc = "buffer goto next" })
-keymap.set("n", "<S-tab>", "<cmd>BufferLineCyclePrev<CR>", { desc = "buffer goto prev" })
-keymap.set("n", "<leader>x", "<cmd>bdelete<CR>", { desc = "buffer close" })
-keymap.set("n", "<leader>tn", "<cmd>tabnew<CR>", { desc = "tab new" })
-keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "tab close" })
-keymap.set("n", "<leader>tl", "<cmd>tabnext<CR>", { desc = "tab next" })
-keymap.set("n", "<leader>th", "<cmd>tabprevious<CR>", { desc = "tab previous" })
-
-keymap.set("n", "<leader>/", function()
-	local line = vim.api.nvim_win_get_cursor(0)[1]
-	toggle_comments(line, line)
-end, { desc = "toggle comment" })
-
-keymap.set("v", "<leader>/", function()
-	toggle_comments(vim.fn.line("'<"), vim.fn.line("'>"))
-end, { desc = "toggle comment" })
-
-keymap.set("n", "<C-n>", "<cmd>NvimTreeToggle<CR>", { desc = "nvimtree toggle window" })
-keymap.set("n", "<leader>e", "<cmd>NvimTreeFocus<CR>", { desc = "nvimtree focus window" })
-
-keymap.set("t", "<C-x>", [[<C-\><C-n>]], { desc = "terminal escape terminal mode" })
-keymap.set("n", "<leader>h", function()
-	terminal.new({ pos = "sp" })
-end, { desc = "terminal new horizontal term" })
-
-keymap.set("n", "<leader>v", function()
-	terminal.new({ pos = "vsp" })
-end, { desc = "terminal new vertical term" })
-
-keymap.set({ "n", "t" }, "<A-v>", function()
-	terminal.toggle({ pos = "vsp", id = "vtoggleTerm" })
-end, { desc = "terminal toggleable vertical term" })
-
-keymap.set({ "n", "t" }, "<A-h>", function()
-	terminal.toggle({ pos = "sp", id = "htoggleTerm" })
-end, { desc = "terminal toggleable horizontal term" })
-
-keymap.set({ "n", "t" }, "<A-i>", function()
-	terminal.toggle({ pos = "float", id = "floatTerm" })
-end, { desc = "terminal toggle floating term" })
-
-keymap.set("n", "<leader>pt", function()
-	terminal.pick()
-end, { desc = "terminal pick hidden term" })
-
-keymap.set("n", "<leader>wK", "<cmd>WhichKey<CR>", { desc = "whichkey all keymaps" })
-keymap.set("n", "<leader>wk", function()
-	vim.cmd("WhichKey " .. vim.fn.input("WhichKey: "))
-end, { desc = "whichkey query lookup" })
-
-keymap.set("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Show LazyGit UI" })
-keymap.set("n", "<leader>uv", "<cmd>ASToggle<CR>", { desc = "Toggle autosave" })
+map("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Show LazyGit UI" })
+map("n", "<leader>h", function()
+    open_terminal("split")
+end, { desc = "New horizontal terminal" })
+map("n", "<leader>v", function()
+    open_terminal("vsplit")
+end, { desc = "New vertical terminal" })
+map("n", "<leader>uv", "<cmd>ASToggle<CR>", { desc = "Toggle autosave" })

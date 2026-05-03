@@ -1,19 +1,12 @@
-require("core")
-require("config")
+vim.g.mapleader = " "
 
-vim.api.nvim_create_autocmd("TextYankPost", {
-	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
-	callback = function()
-		vim.hl.on_yank()
-	end,
-})
-
-vim.opt.termguicolors = true
+require("pack").setup()
+require("core.options")
+require("core.autocmds")
+require("core.keymaps")
 
 vim.opt.fileencodings = {
-	"utf-8",
-	"koi8-u",
-	"cp1251",
+    "utf-8",
+    "koi8-u",
+    "cp1251",
 }
-
-vim.g.gitblame_enabled = 0
