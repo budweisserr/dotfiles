@@ -1,23 +1,39 @@
 return {
-    { "nvim-lua/plenary.nvim" },
-    { "nvim-tree/nvim-web-devicons", config = function() require("nvim-web-devicons").setup({}) end },
-    { "rafamadriz/friendly-snippets" },
-
+    { "nvim-lua/plenary.nvim", event = { "BufReadPost" } },
+    { "rafamadriz/friendly-snippets", event = { "InsertEnter" } },
     {
-        "marko-cerovac/material.nvim",
+        "nvim-treesitter/nvim-treesitter",
+        event = { "FileType" },
+        config = function()
+            require("configs.treesitter").setup()
+        end,
+    },
+    {
+        "windwp/nvim-autopairs",
+        event = { "InsertEnter" },
+        config = function()
+            require("nvim-autopairs").setup({})
+        end,
+    },
+    {
+        "nvim-tree/nvim-web-devicons",
+        lazy = false,
+        config = function()
+            require("nvim-web-devicons").setup({})
+        end,
+    },
+    {
+        "folke/tokyonight.nvim",
         lazy = false,
         config = function()
             require("configs.theme")
         end,
     },
-
     {
         "goolord/alpha-nvim",
         lazy = false,
         dependencies = { "nvim-web-devicons" },
-        config = function()
-            require("configs.alpha")
-        end,
+        cmd = { "Alpha" },
         init = function()
             if vim.fn.argc() == 0 then
                 vim.defer_fn(function()
@@ -25,8 +41,10 @@ return {
                 end, 5)
             end
         end,
+        config = function()
+            require("configs.alpha")
+        end,
     },
-
     {
         "rmagatti/auto-session",
         lazy = false,
@@ -34,7 +52,6 @@ return {
             require("configs.auto-session")
         end,
     },
-
     {
         "nvim-tree/nvim-tree.lua",
         dependencies = { "nvim-web-devicons" },
@@ -43,7 +60,6 @@ return {
             require("nvim-tree").setup(require("configs.nvimtree"))
         end,
     },
-
     {
         "folke/which-key.nvim",
         event = { "CursorHold", "CursorHoldI" },
@@ -51,16 +67,22 @@ return {
             require("which-key").setup({})
         end,
     },
-
+    {
+        "lewis6991/gitsigns.nvim",
+        event = { "BufReadPost" },
+        config = function()
+            require("gitsigns").setup(require("configs.gitsigns"))
+        end,
+    },
     {
         "kdheepak/lazygit.nvim",
         dependencies = { "plenary.nvim" },
         cmd = { "LazyGit" },
     },
-
     {
         "vyfor/cord.nvim",
         cmd = { "Cord" },
+        event = { "BufReadPost", "BufNewFile" },
         config = function()
             require("configs.cord")
         end,
@@ -71,57 +93,55 @@ return {
         cmd = { "Mason", "MasonInstall", "MasonUpdate" },
         config = function()
             require("mason").setup(require("configs.mason"))
+            require("pack").load({ "mason-lspconfig.nvim", "mason-nvim-lint", "mason-conform.nvim" })
         end,
     },
-
     {
         "williamboman/mason-lspconfig.nvim",
-        cmd = { "LspInstall", "LspUninstall" },
         dependencies = { "mason.nvim" },
         config = function()
             require("configs.mason-lspconfig")
         end,
     },
-
     {
         "rshkarin/mason-nvim-lint",
-        cmd = { "MasonInstall" },
         dependencies = { "mason.nvim", "nvim-lint" },
         config = function()
             require("configs.mason-lint")
         end,
     },
-
     {
         "zapling/mason-conform.nvim",
-        cmd = { "MasonInstall" },
         dependencies = { "mason.nvim", "conform.nvim" },
         config = function()
             require("configs.mason-conform")
         end,
     },
-
     {
-        "lukas-reineke/indent-blankline.nvim",
-        event = { "BufReadPost" },
+        "stevearc/conform.nvim",
+        cmd = { "ConformInfo", "Format" },
         config = function()
-            local hooks = require("ibl.hooks")
-            hooks.register(hooks.type.WHITESPACE, hooks.builtin.hide_first_space_indent_level)
-            require("ibl").setup({
-                indent = { char = "│" },
-                scope = { char = "│" },
-            })
+            require("configs.conform")
         end,
     },
-
     {
-        "lewis6991/gitsigns.nvim",
-        event = { "BufReadPost" },
+        "mfussenegger/nvim-lint",
+        event = { "BufReadPost", "BufWritePost" },
         config = function()
-            require("gitsigns").setup(require("configs.gitsigns"))
+            require("configs.lint")
         end,
     },
-
+    {
+        "neovim/nvim-lspconfig",
+        event = { "BufReadPost", "BufNewFile" },
+        dependencies = { "mason-lspconfig.nvim" },
+        config = function()
+            local lsp_defaults = require("configs.lsp")
+            lsp_defaults.defaults()
+            require("configs.mason-lspconfig")
+            require("configs.lspconfig")
+        end,
+    },
     {
         "numToStr/Comment.nvim",
         event = { "BufReadPost" },
@@ -129,18 +149,6 @@ return {
             require("configs.comment")
         end,
     },
-
-    {
-        "windwp/nvim-autopairs",
-        event = { "InsertEnter" },
-        config = function()
-            require("nvim-autopairs").setup({
-                fast_wrap = {},
-                disable_filetype = { "TelescopePrompt", "vim" },
-            })
-        end,
-    },
-
     {
         "Pocco81/auto-save.nvim",
         event = { "InsertLeave", "TextChanged" },
@@ -149,82 +157,88 @@ return {
             require("auto-save").setup({ debounce_delay = 5000 })
         end,
     },
-
-    {
-        "stevearc/conform.nvim",
-        event = { "BufWritePre" },
-        cmd = { "ConformInfo" },
-        config = function()
-            require("configs.conform")
-        end,
-    },
-
-    {
-        "mfussenegger/nvim-lint",
-        event = { "BufReadPost", "BufWritePost" },
-        config = function()
-            require("configs.lint")
-        end,
-    },
-
-    {
-        "neovim/nvim-lspconfig",
-        event = { "BufReadPost" },
-        dependencies = { "mason-lspconfig.nvim" },
-        config = function()
-            local lsp_defaults = require("configs.lsp")
-            lsp_defaults.defaults()
-            require("configs.lspconfig")
-        end,
-    },
-
     {
         "hrsh7th/nvim-cmp",
+        lazy = false,
         event = { "InsertEnter" },
         dependencies = {
+            "cmp-nvim-lsp",
+            "cmp-buffer",
+            "cmp-path",
             "LuaSnip",
             "cmp_luasnip",
-            "cmp-nvim-lsp",
-            "cmp-nvim-lua",
-            "cmp-buffer",
-            "cmp-async-path",
-            "friendly-snippets",
-            "nvim-autopairs",
         },
         config = function()
             require("cmp").setup(require("configs.cmp"))
-            local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-            require("cmp").event:on("confirm_done", cmp_autopairs.on_confirm_done())
         end,
     },
-
     {
         "L3MON4D3/LuaSnip",
         event = { "InsertEnter" },
+        dependencies = { "friendly-snippets" },
         config = function()
-            require("luasnip").config.set_config({ history = true, updateevents = "TextChanged,TextChangedI" })
             require("luasnip.loaders.from_vscode").lazy_load()
         end,
     },
-
     { "saadparwaiz1/cmp_luasnip", event = { "InsertEnter" } },
-    { "hrsh7th/cmp-nvim-lsp",     event = { "InsertEnter" } },
-    { "hrsh7th/cmp-nvim-lua",     event = { "InsertEnter" } },
-    { "hrsh7th/cmp-buffer",       event = { "InsertEnter" } },
-    {
-        "cmp-async-path",
-        [1] = "https://codeberg.org/FelipeLema/cmp-async-path.git",
-        name = "cmp-async-path",
-        event = { "InsertEnter" },
-    },
-
+    { "hrsh7th/cmp-nvim-lsp", event = { "InsertEnter" } },
+    { "hrsh7th/cmp-buffer", event = { "InsertEnter" } },
+    { "hrsh7th/cmp-path", event = { "InsertEnter" } },
     {
         "nvim-telescope/telescope.nvim",
-        dependencies = { "plenary.nvim" },
+        dependencies = { "plenary.nvim", "nvim-web-devicons" },
         cmd = { "Telescope" },
         config = function()
             require("telescope").setup(require("configs.telescope"))
-            pcall(require("telescope").load_extension, "lazygit")
+        end,
+    },
+    {
+        "nvim-lualine/lualine.nvim",
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        config = function()
+            require("configs.lualine")
+        end,
+    },
+    {
+        "romgrk/barbar.nvim",
+        dependencies = {
+            "lewis6991/gitsigns.nvim", -- OPTIONAL: for git status
+            "nvim-tree/nvim-web-devicons", -- OPTIONAL: for file icons
+        },
+        init = function()
+            vim.g.barbar_auto_setup = false
+        end,
+        config = function()
+            require("configs.barbar")
+        end,
+        -- opts = {
+        --     -- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+        --     -- animation = true,
+        --     -- insert_at_start = true,
+        --     -- …etc.
+        -- },
+    },
+    {
+        "jake-stewart/multicursor.nvim",
+        branch = "1.0",
+        config = function()
+            local mc = require("multicursor-nvim")
+
+            mc.setup()
+
+            -- Select next occurrence
+            vim.keymap.set({ "n", "v" }, "<C-g>", function()
+                mc.matchAddCursor(1)
+            end)
+
+            -- Add cursor above/below
+            vim.keymap.set({ "n", "v" }, "<A-k>", function()
+                mc.lineAddCursor(-1)
+            end)
+
+            vim.keymap.set({ "n", "v" }, "<A-j>", function()
+                mc.lineAddCursor(1)
+            end)
         end,
     },
 }

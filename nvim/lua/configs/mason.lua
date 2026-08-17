@@ -1,5 +1,5 @@
 return {
-    PATH = "skip",
+    PATH = "prepend",
     ui = {
         icons = {
             package_pending = " ",

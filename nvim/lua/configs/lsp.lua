@@ -1,7 +1,5 @@
 local M = {}
 
-M.servers = {}
-
 M.on_attach = function(_, bufnr)
     local function opts(desc)
         return { buffer = bufnr, desc = "LSP " .. desc }
@@ -13,6 +11,7 @@ M.on_attach = function(_, bufnr)
     map("n", "gI", vim.lsp.buf.implementation, opts("Go to implementation"))
     map("n", "gr", vim.lsp.buf.references, opts("Go to references"))
     map("n", "K", vim.lsp.buf.hover, opts("Hover"))
+    map("n", "gK", vim.lsp.buf.signature_help, opts("Signature help"))
     map("n", "<leader>ca", vim.lsp.buf.code_action, opts("Code action"))
     map("n", "<leader>rn", vim.lsp.buf.rename, opts("Rename"))
     map("n", "<leader>D", vim.lsp.buf.type_definition, opts("Type definition"))

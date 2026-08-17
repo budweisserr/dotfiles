@@ -67,6 +67,9 @@ local function setup_lazy(spec, load_queue, event_queue)
         if spec.keys then for _, k in ipairs(spec.keys) do vim.keymap.set(unpack(k)) end end
         return table.insert(load_queue, spec)
     end
+    if not spec.event and not spec.keys and not spec.cmd then
+        return table.insert(load_queue, spec)
+    end
     if spec.event then
         for _, event in ipairs(spec.event) do
             if not event_queue[event] then event_queue[event] = {} end
@@ -119,6 +122,7 @@ function M.setup()
             for _, spec in ipairs(require("plugins." .. name:gsub("%.lua$", ""))) do
                 spec.name = spec.name or spec[1]:match("[^/]+$")
                 specs[spec.name] = spec
+                specs[spec[1]] = spec
                 if spec.install ~= false and not installed[spec.name] then
                     table.insert(to_install, to_pack_spec(spec))
                 end

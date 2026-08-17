@@ -1,12 +1,7 @@
 local cmp = require("cmp")
 
 return {
-    completion = { completeopt = "menu,menuone" },
-    snippet = {
-        expand = function(args)
-            require("luasnip").lsp_expand(args.body)
-        end,
-    },
+    completion = { completeopt = "menu,menuone,noselect" },
     mapping = {
         ["<C-p>"] = cmp.mapping.select_prev_item(),
         ["<C-n>"] = cmp.mapping.select_next_item(),
@@ -15,46 +10,32 @@ return {
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<C-e>"] = cmp.mapping.close(),
         ["<CR>"] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }),
-        ["<Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-                cmp.select_next_item()
-            elseif require("luasnip").expand_or_jumpable() then
-                require("luasnip").expand_or_jump()
-            else
-                fallback()
-            end
-        end, { "i", "s" }),
-        ["<S-Tab>"] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-                cmp.select_prev_item()
-            elseif require("luasnip").jumpable(-1) then
-                require("luasnip").jump(-1)
-            else
-                fallback()
-            end
-        end, { "i", "s" }),
+        ["<Tab>"] = cmp.mapping.select_next_item(),
+        ["<S-Tab>"] = cmp.mapping.select_prev_item(),
     },
     sources = {
         { name = "nvim_lsp" },
         { name = "luasnip" },
+        { name = "path" },
         { name = "buffer" },
-        { name = "nvim_lua" },
-        { name = "async_path" },
     },
     formatting = {
         fields = { "kind", "abbr", "menu" },
         format = function(entry, item)
             item.menu = ({
                 nvim_lsp = "[LSP]",
-                luasnip = "[Snip]",
+                path = "[Path]",
                 buffer = "[Buf]",
-                nvim_lua = "[Lua]",
-                async_path = "[Path]",
             })[entry.source.name] or ("[" .. entry.source.name .. "]")
             return item
         end,
     },
     experimental = {
         ghost_text = true,
+    },
+    snippet = {
+        expand = function(args)
+            require("luasnip").lsp_expand(args.body)
+        end,
     },
 }

@@ -18,6 +18,7 @@ o.softtabstop = 4
 
 opt.fillchars = { eob = " " }
 o.ignorecase = true
+o.inccommand = "split"
 o.smartcase = true
 o.mouse = "a"
 
@@ -28,11 +29,16 @@ o.ruler = false
 opt.shortmess:append("sI")
 
 o.signcolumn = "yes"
+o.scrolloff = 6
 o.splitbelow = true
 o.splitright = true
 o.timeoutlen = 400
 o.undofile = true
 o.updatetime = 200
+o.wrap = false
+
+o.grepprg = "rg --vimgrep --smart-case"
+o.grepformat = "%f:%l:%c:%m"
 
 opt.whichwrap:append("<>[]hl")
 

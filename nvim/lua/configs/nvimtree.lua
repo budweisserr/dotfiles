@@ -25,7 +25,7 @@ return {
         },
     },
     filters = {
-        dotfiles = true,
+        dotfiles = false,
     },
     git = {
         enable = true,
