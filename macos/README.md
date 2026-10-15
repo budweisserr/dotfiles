@@ -7,6 +7,7 @@ launcher concept, same workspaces, same muscle memory where macOS allows it.
 ./setup.sh              # brew bundle + link configs
 ./setup.sh --no-bundle  # link configs only
 ./setup.sh --tweaks     # also apply the opinionated macOS defaults
+./uninstall.sh --dry-run  # print the rollback plan, change nothing
 ```
 
 Then work through the four manual steps the script prints at the end. The first
@@ -32,6 +33,10 @@ Side effect worth knowing: AeroSpace captures alt+letter globally, so the
 Option-key special characters on those letters stop working — alt+m gives no
 `µ`, alt+w no `∑`, alt+p no `π`, alt+s no `ß`. Use the Character Viewer if you
 need them, or rebind.
+
+The same capture means alt+letters never reach the terminal. kitty's
+`macos_option_as_alt no` is moot here: alt+b and alt+f will not arrive, so
+readline word movement needs ctrl+arrow or shell-side bindings.
 
 ## Keymap
 
@@ -100,12 +105,54 @@ current bindings: `aerospace config --get mode.main.binding --keys`.
   its licensing before using it for work.
 - **No Karabiner, no yabai, no sketchybar tweaks that need SIP** — see above.
 
+## Rollback
+
+`setup.sh` records what it does under
+`${XDG_STATE_HOME:-~/.local/state}/macos-setup/`:
+
+- `before-formulas.txt` / `before-casks.txt` — what was installed beforehand
+- `installed-formulas.txt` / `installed-casks.txt` — the difference, i.e. what
+  `setup.sh` itself added
+- `links.tsv` — every symlink it made, plus any `.bak` it moved aside
+- `tweaks-applied` — marker that the `--tweaks` defaults were written
+
+`uninstall.sh` reads that, so packages you already had are never touched.
+
+```
+./uninstall.sh --dry-run        # print the plan, change nothing
+./uninstall.sh                  # unlink, revert tweaks, remove its own packages
+./uninstall.sh --zap            # also wipe app data (browser profiles, caches)
+./uninstall.sh --links-only     # configs and tweaks only
+./uninstall.sh --from-brewfile  # no manifest? remove all Brewfile packages
+```
+
+Caveats worth knowing. `--from-brewfile` is the blunt option and will remove
+things you installed yourself, up to and including `visual-studio-code` and your
+browsers. Plain `brew bundle` does not upgrade existing packages, so there are no
+version upgrades to revert — but a formula you upgraded by hand is not
+downgraded either. Homebrew itself stays. AeroSpace is quit before its app is
+removed. `--zap` is opt-in because for a browser it means your profile.
+
+## kitty
+
+`kitty/kitty.conf` is shared between the Linux box and the Mac — stock kitty
+config plus a Horizon palette, opacity 0.8, Fira Mono at size 10. It carries
+`macos_*` and `linux_display_server` lines; kitty ignores whichever ones do not
+apply to the platform it is running on.
+
+Two font notes, since the config references fonts Homebrew does not all supply:
+
+- `font_family Fira Mono` — the Brewfile installs `font-fira-mono` (exact
+  family) plus `font-fira-mono-nerd-font` (icons for btop and powerline
+  prompts). For one font everywhere, change the line to `FiraMono Nerd Font`.
+- `symbol_map U+2800-U+28FF Symbola` — Homebrew has no Symbola cask. kitty logs
+  a warning and falls back. If braille cells (btop, ncdu graphs) render as
+  boxes, install Symbola by hand or drop that line.
+
 ## Files
 
 - `aerospace.toml` → linked to `~/.config/aerospace/aerospace.toml`
 - `Brewfile` — every package name verified against the Homebrew API
 - `setup.sh` — idempotent; existing configs get moved to `.bak`, never clobbered
-
-The kitty config is not tracked in this repo. Add `kitty/kitty.conf` at the repo
-root and `setup.sh` will link it; until then the script leaves whatever is
-already in `~/.config/kitty` alone.
+- `uninstall.sh` — reverses the above from the recorded manifest
+- `../kitty/kitty.conf` → linked to `~/.config/kitty/kitty.conf`

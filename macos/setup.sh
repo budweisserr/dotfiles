@@ -6,16 +6,20 @@
 #   ./setup.sh --no-bundle  skip `brew bundle`, only link configs
 #   ./setup.sh --tweaks     also apply the opinionated macOS defaults
 #
+# Undo with ./uninstall.sh — this script records what it installs, so the
+# rollback can leave the packages you already had alone.
+#
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(dirname "$DOTFILES")"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/macos-setup"
 
 WITH_BUNDLE=1
 WITH_TWEAKS=0
 
 usage() {
-    sed -n '3,7p' "$0" | cut -c3-
+    sed -n '3,9p' "$0" | cut -c3-
     exit "${1:-0}"
 }
 
@@ -57,25 +61,58 @@ done
 command -v brew >/dev/null 2>&1 || die "Homebrew installed but not on PATH"
 
 # --- packages -----------------------------------------------------------
+snapshot_pkgs() {
+    brew list --"$1" 2>/dev/null | sort
+}
+
+# Union with any previous run, so a second invocation does not erase the
+# record of what the first one installed.
+record_new_pkgs() {
+    local kind="$1"
+    local before="$STATE_DIR/before-${kind}s.txt"
+    local manifest="$STATE_DIR/installed-${kind}s.txt"
+    local tmp
+    tmp="$(mktemp)"
+    {
+        cat "$manifest" 2>/dev/null || true
+        comm -13 "$before" <(snapshot_pkgs "$kind")
+    } | sort -u > "$tmp"
+    mv "$tmp" "$manifest"
+}
+
 if (( WITH_BUNDLE )); then
+    mkdir -p "$STATE_DIR"
+    snapshot_pkgs formula > "$STATE_DIR/before-formulas.txt"
+    snapshot_pkgs cask    > "$STATE_DIR/before-casks.txt"
+
     say "installing packages from Brewfile"
     brew bundle --file "$DOTFILES/Brewfile" \
         || warn "brew bundle reported failures — see the summary above"
+
+    record_new_pkgs formula
+    record_new_pkgs cask
+    printf '  recorded %s new formulae and %s new casks in %s\n' \
+        "$(wc -l < "$STATE_DIR/installed-formulas.txt" | tr -d ' ')" \
+        "$(wc -l < "$STATE_DIR/installed-casks.txt" | tr -d ' ')" \
+        "$STATE_DIR"
 fi
 
 # --- config linking -----------------------------------------------------
 link() {
-    local src="$1" dst="$2"
+    local src="$1" dst="$2" bak=""
     if [[ ! -e "$src" ]]; then
         warn "$src is missing, skipping"
         return
     fi
     mkdir -p "$(dirname "$dst")"
     if [[ -e "$dst" && ! -L "$dst" ]]; then
-        warn "$dst exists — moving it to $dst.bak"
-        mv "$dst" "$dst.bak"
+        bak="$dst.bak"
+        warn "$dst exists — moving it to $bak"
+        mv "$dst" "$bak"
     fi
     ln -sfn "$src" "$dst"
+    mkdir -p "$STATE_DIR"
+    printf '%s\t%s\n' "$dst" "$bak" >> "$STATE_DIR/links.tsv"
     printf '  %s -> %s\n' "$dst" "$src"
 }
 
@@ -100,6 +137,8 @@ if (( WITH_TWEAKS )); then
     defaults write com.apple.spaces spans-displays -bool true
     killall Dock 2>/dev/null || true
     killall SystemUIServer 2>/dev/null || true
+    mkdir -p "$STATE_DIR"
+    touch "$STATE_DIR/tweaks-applied"
     warn "log out and back in for the Spaces change to take effect"
 fi
 
@@ -123,10 +162,12 @@ By hand, once:
      alt-shift, macOS uses ctrl-space by default.
 
   4. kitty picks up ~/.config/kitty/kitty.conf on its own.
-     kitty's config is not tracked in this repo yet — add kitty/ if you want
-     it shared with the Linux box.
 
-macos/README.md covers what does not port across and what this particular
-MDM-managed Mac will refuse to do.
+Everything this script installed is recorded in:
+
+  ~/.local/state/macos-setup/
+
+so ./uninstall.sh can remove just those packages and leave the rest of your
+Mac alone. Try it with --dry-run first.
 
 EOF
