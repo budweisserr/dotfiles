@@ -1,0 +1,169 @@
+# macos/Brewfile — `brew bundle --file=macos/Brewfile`
+#
+# Ports the Arch toolchain (`pacman -Qe`) to macOS equivalents. Sections
+# labelled "extras" are additions rather than ports — trim them freely.
+#
+# Every name below was checked against the Homebrew API, so `brew bundle`
+# should resolve cleanly. If one still fails, `brew search <name>`.
+
+# --- window management / desktop ---------------------------------------
+cask "nikitabobko/tap/aerospace"    # tiling WM — awesome replacement, no SIP off
+cask "raycast"                      # rofi replacement: run prompt + clipboard + window
+cask "alt-tab"                      # the alt-tab switcher widget from awesome
+cask "jordanbaird-ice"              # menu bar manager (awesome topbar widgets)
+cask "stats"                        # menu bar CPU/RAM/battery/temp
+cask "flameshot"                    # Print-key screenshot habit from awesome
+cask "mos"                          # smooth scrolling for external mice
+
+# --- terminal ----------------------------------------------------------
+cask "kitty"                        # same terminal as Linux, same config
+cask "ghostty"                      # extras: fast GPU terminal, try it
+brew "tmux"
+brew "zellij"                       # extras: tmux alternative
+brew "starship"                     # extras: prompt
+brew "atuin"                        # extras: shell history
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "direnv"
+brew "carapace"                     # extras: completions for everything
+
+# --- browsers ----------------------------------------------------------
+cask "zen"                          # zen-browser-bin
+cask "ungoogled-chromium"           # ungoogled-chromium-bin
+cask "brave-browser"                # extras
+cask "firefox"                      # extras
+
+# --- comms -------------------------------------------------------------
+cask "telegram"                     # telegram-desktop
+cask "viber"
+cask "zoom"
+cask "discord"                      # extras
+cask "thunderbird"
+
+# --- editors / IDEs ----------------------------------------------------
+cask "visual-studio-code"           # `code`, used by awesome config/apps.lua
+cask "cursor"                       # extras
+cask "jetbrains-toolbox"
+brew "neovim"
+brew "tree-sitter"                  # tree-sitter-cli
+brew "luacheck"                     # awesome config linting
+
+# --- languages / build -------------------------------------------------
+brew "go"
+brew "node"
+brew "pnpm"
+brew "bun"
+brew "uv"
+brew "pipx"
+brew "rustup"
+brew "openjdk@17"
+brew "maven"
+brew "rebar3"
+brew "postgresql@16"
+brew "cmake"
+brew "ninja"
+brew "meson"
+brew "make"
+brew "ccache"
+brew "llvm"
+brew "gcc"
+brew "pkgconf"
+
+# --- version control ---------------------------------------------------
+brew "git"
+brew "git-delta"
+brew "git-lfs"
+brew "lazygit"
+brew "tig"
+brew "glab"
+brew "gh"                           # extras
+
+# --- coreutils / CLI replacements --------------------------------------
+brew "coreutils"                    # GNU coreutils, prefixed with g
+brew "findutils"
+brew "gnu-sed"
+brew "gnu-tar"
+brew "gawk"
+brew "grep"                         # GNU grep, prefixed with g
+brew "eza"                          # ls --color, but nicer
+brew "bat"
+brew "fd"
+brew "ripgrep"
+brew "fzf"                          # extras
+brew "zoxide"                       # extras: smarter cd
+brew "sd"                           # extras: sane sed
+brew "jq"
+brew "yq"
+brew "xh"                           # extras: httpie alternative
+brew "httpie"
+brew "doggo"                        # extras: dig
+brew "tree"
+brew "ranger"
+brew "midnight-commander"           # mc
+brew "fdupes"
+brew "sevenzip"
+brew "rsync"
+brew "wget"
+brew "glow"                         # extras: markdown in the terminal
+
+# --- monitoring / network ----------------------------------------------
+brew "btop"
+brew "bottom"                       # extras: btop alternative
+brew "htop"                         # extras
+brew "fastfetch"
+brew "ncdu"                         # extras
+brew "dust"                         # extras
+brew "duf"                          # extras
+brew "procs"                        # extras: ps
+brew "gping"                        # extras
+brew "bandwhich"                    # extras
+brew "mtr"
+brew "nmap"
+brew "openvpn"
+brew "wireguard-tools"
+brew "screenfetch"                  # extras
+
+# --- containers / VMs --------------------------------------------------
+# NB: Docker Desktop needs a paid subscription above 250 employees. colima is
+# MIT-licensed and speaks the same docker CLI — prefer it on a corporate Mac.
+cask "orbstack"                     # extras: fast alternative, check licensing
+brew "colima"
+brew "docker"
+brew "docker-compose"
+brew "dive"                         # extras: inspect image layers
+brew "lazydocker"                   # extras
+# cask "docker-desktop"             # see licensing note above
+
+# --- documents / media -------------------------------------------------
+cask "libreoffice"
+cask "vlc"
+cask "iina"                         # mpv front-end
+cask "obs"
+brew "mpv"
+brew "yt-dlp"
+brew "ffmpeg"
+brew "imagemagick"
+brew "pandoc"
+brew "poppler"
+brew "mupdf"
+brew "agg"                          # extras: asciinema -> gif
+
+# --- misc --------------------------------------------------------------
+brew "hyperfine"                    # extras: benchmark
+brew "just"                         # extras: make alternative
+brew "watchexec"                    # extras: rerun on change
+brew "shellcheck"
+brew "shfmt"
+brew "tty-clock"
+brew "cmatrix"
+brew "figlet"
+brew "lolcat"
+cask "appcleaner"                   # extras: uninstall leftovers
+
+# --- fonts -------------------------------------------------------------
+cask "font-jetbrains-mono-nerd-font"
+cask "font-fira-code-nerd-font"
+cask "font-roboto-mono-nerd-font"
+cask "font-symbols-only-nerd-font"
+cask "font-meslo-lg-nerd-font"      # extras
+cask "font-noto-sans"
