@@ -116,22 +116,31 @@ current bindings: `aerospace config --get mode.main.binding --keys`.
 - `links.tsv` — every symlink it made, plus any `.bak` it moved aside
 - `tweaks-applied` — marker that the `--tweaks` defaults were written
 
-`uninstall.sh` reads that, so packages you already had are never touched.
+`uninstall.sh` reads that, so packages you already had are never touched. If the
+record is missing it removes nothing from Homebrew and says so, rather than
+guessing.
 
 ```
-./uninstall.sh --dry-run        # print the plan, change nothing
-./uninstall.sh                  # unlink, revert tweaks, remove its own packages
-./uninstall.sh --zap            # also wipe app data (browser profiles, caches)
-./uninstall.sh --links-only     # configs and tweaks only
-./uninstall.sh --from-brewfile  # no manifest? remove all Brewfile packages
+./uninstall.sh --dry-run      # print the plan, change nothing
+./uninstall.sh                # unlink, revert tweaks, remove its own packages
+./uninstall.sh --zap          # also wipe app data (browser profiles, caches)
+./uninstall.sh --links-only   # configs and tweaks only
 ```
 
-Caveats worth knowing. `--from-brewfile` is the blunt option and will remove
-things you installed yourself, up to and including `visual-studio-code` and your
-browsers. Plain `brew bundle` does not upgrade existing packages, so there are no
-version upgrades to revert — but a formula you upgraded by hand is not
-downgraded either. Homebrew itself stays. AeroSpace is quit before its app is
-removed. `--zap` is opt-in because for a browser it means your profile.
+Caveats worth knowing. `--links-only` leaves AeroSpace installed and registered
+to start at login, so it comes back on the next start with its built-in default
+config — remove it under System Settings → General → Login Items, or run
+uninstall without the flag. Plain `brew bundle` does not upgrade existing
+packages, so there is nothing to downgrade; a formula you upgraded by hand is
+left as it is. Homebrew itself stays. AeroSpace is quit before its app is
+removed. `--zap` is opt-in, because for a browser it means your profile.
+
+The manifest logic in `lib.sh` decides what a destructive script is allowed to
+remove, so it has a test:
+
+```
+./test-manifest.sh
+```
 
 ## kitty
 
@@ -155,4 +164,6 @@ Two font notes, since the config references fonts Homebrew does not all supply:
 - `Brewfile` — every package name verified against the Homebrew API
 - `setup.sh` — idempotent; existing configs get moved to `.bak`, never clobbered
 - `uninstall.sh` — reverses the above from the recorded manifest
+- `lib.sh` — the install record: snapshot, diff, union across runs
+- `test-manifest.sh` — five checks over `lib.sh`, no framework
 - `../kitty/kitty.conf` → linked to `~/.config/kitty/kitty.conf`
