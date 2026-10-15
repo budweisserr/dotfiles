@@ -116,10 +116,11 @@ if [[ -e "$HOME/.aerospace.toml" ]]; then
 fi
 link "$DOTFILES/aerospace.toml" "$HOME/.config/aerospace/aerospace.toml"
 
-# the kitty config lives at the repo root and is shared with the Linux box
-if [[ -f "$REPO/kitty/kitty.conf" && ! -e "$HOME/.config/kitty/kitty.conf" ]]; then
-    link "$REPO/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
-fi
+# the kitty config lives at the repo root and is shared with the Linux box.
+# Link it unconditionally: kitty writes its own kitty.conf on first run, so an
+# "only if missing" guard silently does nothing on a Mac where kitty has
+# already been opened once. link() stashes whatever is there to .bak.
+link "$REPO/kitty/kitty.conf" "$HOME/.config/kitty/kitty.conf"
 
 # --- opinionated macOS defaults -----------------------------------------
 if (( WITH_TWEAKS )); then

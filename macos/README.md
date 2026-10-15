@@ -149,6 +149,12 @@ config plus a Horizon palette, opacity 0.8, Fira Mono at size 10. It carries
 `macos_*` and `linux_display_server` lines; kitty ignores whichever ones do not
 apply to the platform it is running on.
 
+`setup.sh` links it over `~/.config/kitty/kitty.conf`, moving any file already
+there to `kitty.conf.bak`. That matters because kitty writes its own
+`kitty.conf` the first time you open it — so on a Mac where you launched kitty
+before running setup, your generated one ends up in the `.bak` and the shared
+config is what kitty reads. Rollback puts the `.bak` back.
+
 Two font notes, since the config references fonts Homebrew does not all supply:
 
 - `font_family Fira Mono` — the Brewfile installs `font-fira-mono` (exact

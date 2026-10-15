@@ -4,7 +4,11 @@
 #
 set -euo pipefail
 
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/macos-setup"
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# STATE_DIR comes from lib.sh so setup and uninstall cannot disagree about
+# where the install record lives
+source "$DOTFILES/lib.sh"
 
 DRY_RUN=0
 ZAP=0
@@ -48,7 +52,6 @@ run() {
 }
 
 [[ "$(uname -s)" == Darwin ]] || die "this script targets macOS"
-
 # --- 1. config symlinks -------------------------------------------------
 remove_links() {
     local dst bak parent removed
