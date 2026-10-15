@@ -22,13 +22,6 @@ local function flip(surface, axis)
         source_pattern.matrix = cairo.Matrix {xx = -1, yy = 1, x0 = width}
     elseif axis == "vertical" then
         source_pattern.matrix = cairo.Matrix {xx = 1, yy = -1, y0 = height}
-    elseif axis == "both" then
-        source_pattern.matrix = cairo.Matrix {
-            xx = -1,
-            yy = -1,
-            x0 = width,
-            y0 = height,
-        }
     end
     cr.source = source_pattern
     cr:rectangle(0, 0, width, height)

@@ -27,7 +27,8 @@ local add_decorations = function(c)
 	--
 
 	-- https://www.reddit.com/r/awesomewm/comments/ggru8u/custom_rule_properties/
-	if c.class == "opera" or c.class == "firefox" or c.class == "brave" then
+	local cls = c.class or ""
+	if cls == "Opera" or cls == "Firefox" or cls == "Zen" or cls == "Brave-browser" or cls == "brave" then
 		require("signals.client.titlebars.top-alternate")(c, args)
 	else
 		require("signals.client.titlebars.top")(c, args)
@@ -35,9 +36,6 @@ local add_decorations = function(c)
 	require("signals.client.titlebars.left")(c, args)
 	require("signals.client.titlebars.right")(c, args)
 	require("signals.client.titlebars.bottom")(c, args)
-
-	-- Clean up
-	collectgarbage("collect")
 end
 
 client.connect_signal("request::titlebars", function(c)

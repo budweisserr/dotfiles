@@ -13,7 +13,7 @@ local wibox = require("wibox")
 
 local shapes = require("lib.shapes")
 
-local set_left_titlebar = function(c, left_border_img, client_color)
+local set_titlebar = function(c, left_border_img, client_color)
     awful.titlebar(c, {
         position = "left",
         size = 2,
@@ -25,23 +25,7 @@ local set_left_titlebar = function(c, left_border_img, client_color)
     }
 end
 
-local set_thunar_left_titlebar = function(c, left_border_img)
-    local custom_titlebar = require("signals.client.titlebars.thunar")(c)
-
-    awful.titlebar(c, {
-        position = "left",
-        size = 48,
-        bg = transparent,
-        widget = wibox.container.background,
-    }):setup{
-        custom_titlebar,
-        bgimage = left_border_img,
-        widget = wibox.container.background,
-    }
-end
-
 local left = function(c, args)
-    -- The left side border
     local left_border_img = shapes.create_edge_left {
         client_color = args.client_color,
         height = c.screen.geometry.height,
@@ -52,6 +36,8 @@ local left = function(c, args)
         stroke_width_inner = 1.5,
         inner_stroke_color = args.stroke_color_inner_sides,
     }
+
+    set_titlebar(c, left_border_img, args.client_color)
 end
 
 return left

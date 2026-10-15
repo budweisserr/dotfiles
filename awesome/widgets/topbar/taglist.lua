@@ -2,19 +2,19 @@ local awful = require("awful")
 local gears = require("gears")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
-local naughty = require("naughty")
 
 local button = require("lib.button")
+local mod = require("bindings.mod")
 
 local taglist_buttons = gears.table.join(
                     awful.button({ }, 1, function(t) t:view_only() end),
-                    awful.button({ modkey }, 1, function(t)
+                    awful.button({ mod.super }, 1, function(t)
                                               if client.focus then
                                                   client.focus:move_to_tag(t)
                                               end
                                           end),
                     awful.button({ }, 3, awful.tag.viewtoggle),
-                    awful.button({ modkey }, 3, function(t)
+                    awful.button({ mod.super }, 3, function(t)
                                               if client.focus then
                                                   client.focus:toggle_tag(t)
                                               end
@@ -92,16 +92,17 @@ taglist.init = function(s)
     }
 
     local container = wibox.widget {
-        taglist, 
-        button.create_text(beautiful.fg_dark, beautiful.fg_normal, "", 12, function() 
-            for _, tag in pairs(root.tags()) do
+        taglist,
+        button.create_text(beautiful.fg_dark, beautiful.fg_normal, "", 12, function()
+            local screen = mouse.screen or awful.screen.focused()
+            for _, tag in ipairs(screen.tags) do
                 if #tag:clients() == 0 then
-                tag:view_only()
-                break 
+                    tag:view_only()
+                    break
                 end
             end
         end),
-        spacing = 6, 
+        spacing = 6,
         layout = wibox.layout.fixed.horizontal
     }
 

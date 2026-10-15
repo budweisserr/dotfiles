@@ -31,7 +31,7 @@ local uptime = wibox.widget {
 
 awful.widget.watch("uptime -p", 60, function(_, stdout)
     -- Remove trailing whitespaces
-    local out = stdout:gsub('^%s*(.-)%s*$', '%1')--:gsub(", ", ",\n")
+    local out = stdout:gsub('^%s*(.-)%s*$', '%1')
     uptime.text = out
 end)
 

@@ -1,10 +1,8 @@
-local awful = require("awful")
 local beautiful = require("beautiful")
-local naughty = require("naughty")
 local watch = require("awful.widget.watch")
-local wibox = require("wibox")
-local gfs = require("gears.filesystem")
 local dpi = require('beautiful').xresources.apply_dpi
+
+local battery_icons = { [0] = "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹", "󰁹" }
 
 local notification
 
@@ -12,7 +10,7 @@ local notification
 local last_battery_check = os.time()
 local warningDisplayed = false
 
-local icon = ""
+local icon
 
 watch("acpi -i", 10, function(widget, stdout, stderr, exitreason, exitcode)
     local battery_info = {}
@@ -40,35 +38,18 @@ watch("acpi -i", 10, function(widget, stdout, stderr, exitreason, exitcode)
 
     if charging then
         icon = "󰂄"
-    elseif (charge >= 0 and charge < 10) then
-        icon = "󰁺"
-        if os.difftime(os.time(), last_battery_check) > 300 or not warningDisplayed or charge < 3 then
-            -- if 5 minutes have elapsed since the last warning
-            last_battery_check = os.time()
-            warningDisplayed = true
-
-            awesome.emit_signal("evil::battery_warning", charge)
-        end
-    elseif (charge < 20) then 
-        icon = "󰁻"
-    elseif charge < 30 then
-        icon = "󰁼"
-    elseif charge < 40 then
-        icon = "󰁽"
-    elseif charge < 50 then
-        icon = "󰁾"
-    elseif charge < 60 then
-        icon = "󰁿"
-    elseif charge < 70 then
-        icon = "󰂀"
-    elseif charge < 80 then
-        icon = "󰂁"
-    elseif charge < 90 then
-        icon = "󰂂"
-    elseif charge < 100 then
-        icon = "󰁹"
     else
-        icon = "󰁹"
+        icon = battery_icons[math.min(math.floor(charge / 10), 10)]
+
+        if charge < 10 then
+            if os.difftime(os.time(), last_battery_check) > 300 or not warningDisplayed or charge < 3 then
+                -- if 5 minutes have elapsed since the last warning
+                last_battery_check = os.time()
+                warningDisplayed = true
+
+                awesome.emit_signal("evil::battery_warning", charge)
+            end
+        end
     end
     
     awesome.emit_signal("evil::battery", {

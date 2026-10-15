@@ -11,6 +11,15 @@ ruled.client.connect_signal("request::rules", function()
 			focus = awful.client.focus.filter,
 			raise = true,
 			screen = awful.screen.preferred,
+			-- Float every window from the moment it is managed, so the tile
+			-- layout never resizes it. This is what makes windows keep the
+			-- size the application asked for (Windows/macOS-like behaviour).
+			floating = true,
+			-- Respect each app's own min/base/increment size hints. Only has
+			-- effect on floating clients, which is now all of them.
+			size_hints_honor = true,
+			-- Nudges the window on-screen if needed; this only moves, it
+			-- never changes the requested size.
 			placement = awful.placement.no_offscreen,
 		},
 		callback = function(c)
@@ -19,12 +28,14 @@ ruled.client.connect_signal("request::rules", function()
 				return
 			end
 
+			-- Defer ONLY the centering until the app has applied its own
+			-- geometry. Floating is already set above (immediately, via
+			-- properties) so the window is never tiled/resized first.
+			-- awful.placement.centered moves the window, it never resizes it.
 			gears.timer.delayed_call(function()
 				if not c.valid or c.fullscreen or c.maximized then
 					return
 				end
-
-				c.floating = true
 
 				if not c.size_hints.user_position and not c.size_hints.program_position then
 					awful.placement.centered(c, {
@@ -36,56 +47,17 @@ ruled.client.connect_signal("request::rules", function()
 		end,
 	})
 
-	-- Floating clients.
-	ruled.client.append_rule({
-		id = "floating",
-		rule_any = {
-			instance = { "copyq", "pinentry", "floating_terminal" },
-			class = {
-				"Arandr",
-				"Blueman-manager",
-				"Gpick",
-				"Kruler",
-				"Sxiv",
-				"Tor Browser",
-				"Wpa_gui",
-				"veromix",
-				"xtightvncviewer",
-				"feh",
-			},
-			-- Note that the name property shown in xprop might be set slightly after creation of the client
-			-- and the name shown there might not match defined rules here.
-			name = {
-				"Event Tester", -- xev.
-			},
-			role = {
-				"AlarmWindow", -- Thunderbird's calendar.
-				"ConfigManager", -- Thunderbird's about:config.
-				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
-			},
-		},
-		properties = { floating = true },
-	})
-
 	-- Add titlebars to normal clients and dialogs, except apps with native CSD/titlebars
 	ruled.client.append_rule({
 		id = "titlebars",
 		rule_any = { type = { "normal", "dialog" } },
 		except_any = {
 			class = {
-				"Opera",
-				"Firefox",
 				"discord",
 			},
 		},
 		properties = { titlebars_enabled = true },
 	})
-	--
-	-- ruled.client.append_rule({
-	-- 	id = "telegram",
-	-- 	rule = { class = "TelegramDesktop" },
-	-- 	properties = { titlebars_enabled = false },
-	-- })
 
 	ruled.client.append_rule({
 		id = "telegram-media-viewer",
@@ -97,6 +69,15 @@ ruled.client.connect_signal("request::rules", function()
 			titlebars_enabled = false,
 			fullscreen = true,
 		},
+		callback = function(c)
+			-- no_offscreen placement shifts the window into the workarea after
+			-- we set fullscreen.  Re-asserting fullscreen is a no-op (already
+			-- true), so force the geometry explicitly.
+			if c.screen then
+				local g = c.screen.geometry
+				c:geometry({ x = g.x, y = g.y, width = g.width, height = g.height })
+			end
+		end,
 	})
 
 	ruled.client.append_rule({
@@ -112,14 +93,6 @@ ruled.client.connect_signal("request::rules", function()
 	ruled.client.append_rule({
 		rule = { class = "Zen" },
 		properties = { maximized = true },
-	})
-
-	ruled.client.append_rule({
-		rule = { class = "Thunar" },
-		properties = { floating = true },
-		callback = function(c)
-			awful.placement.centered(c, nil)
-		end,
 	})
 
 	ruled.client.append_rule({
@@ -146,7 +119,6 @@ ruled.client.connect_signal("request::rules", function()
 		},
 		properties = {
 			titlebars_enabled = false,
-			floating = true,
 		},
 	})
 end)

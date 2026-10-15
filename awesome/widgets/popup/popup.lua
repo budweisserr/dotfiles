@@ -68,7 +68,7 @@ local createPopup = function(color)
         visible      = false,
     }
 
-    popup:connect_signal("button::press", function() notyfi.visible = false end)
+    popup:connect_signal("button::press", function() popup.visible = false end)
 
     local timer_die = gears.timer { timeout = 3 }
 

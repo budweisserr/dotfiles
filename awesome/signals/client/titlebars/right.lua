@@ -38,7 +38,7 @@ local left = function(c, args)
             inner_stroke_color = args.stroke_color_inner_sides,
         }, "horizontal")
 
-    set_titlebar(c, right_border_img, client_color)
+    set_titlebar(c, right_border_img, args.client_color)
 end
 
 return left

@@ -1,7 +1,5 @@
 local wibox = require("wibox")
-local gears = require("gears")
 local beautiful = require("beautiful")
-local dpi = beautiful.xresources.apply_dpi
 
 local clock_format = "%A %B %d, %H:%M"
 

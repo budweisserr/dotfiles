@@ -1,11 +1,7 @@
-local awful = require("awful")
 local watch = require("awful.widget.watch")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local gears = require("gears")
-
-local content = {}
 
 local function createDiskRow(disk)
 	if not disk then
@@ -58,7 +54,7 @@ local function worker(args)
 	local timeout = 60
 	local disks = {}
 
-	content = wibox.layout.fixed.horizontal()
+	local content = wibox.layout.fixed.horizontal()
 	content.spacing = dpi(48)
 
 	watch([[bash -c "df | tail -n +4"]], timeout, function(widget, stdout)
@@ -97,7 +93,7 @@ local function worker(args)
 	})
 end
 
-return setmetatable(content, {
+return setmetatable({}, {
 	__call = function(_, ...)
 		return worker(...)
 	end,

@@ -1,10 +1,6 @@
-local awful = require("awful")
 local beautiful = require("beautiful")
-local spawn = require("awful.spawn")
-local watch = require("awful.widget.watch")
 local wibox = require("wibox")
 local gears = require("gears")
-local naughty = require("naughty")
 local dpi = require('beautiful').xresources.apply_dpi
 
 local main_color = beautiful.highlight

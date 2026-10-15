@@ -10,14 +10,6 @@ local timer = gears.timer
 local client = client
 awful.client = require('awful.client')
 
-local naughty = require("naughty")
-local string = string
-local tostring = tostring
-local tonumber = tonumber
-local debug = debug
-local pairs = pairs
-local unpack = unpack or table.unpack
-
 local surface = cairo.ImageSurface(cairo.Format.RGB24,20,20)
 local cr = cairo.Context(surface)
 
@@ -45,13 +37,6 @@ _M.preview_widgets = {}
 
 _M.altTabTable = {}
 _M.altTabIndex = 1
-
--- simple function for counting the size of a table
-function _M.tableLength(T)
-	local count = 0
-	for _ in pairs(T) do count = count + 1 end
-	return count
-end
 
 -- this function returns the list of clients to be shown.
 function _M.getClients()
@@ -117,7 +102,7 @@ end
 function _M.populateAltTabTable()
 	local clients = _M.getClients()
 
-	if _M.tableLength(_M.altTabTable) then
+	if #_M.altTabTable > 0 then
 		for ci = 1, #clients do
 			for ti = 1, #_M.altTabTable do
 				if _M.altTabTable[ti].client == clients[ci] then
@@ -145,7 +130,7 @@ end
 -- check.
 function _M.clientsHaveChanged()
 	local clients = _M.getClients()
-	return _M.tableLength(clients) ~= _M.tableLength(_M.altTabTable)
+	return #clients ~= #_M.altTabTable
 end
 
 -- This is called any _M.settings.preview_box_fps milliseconds. In case the list

@@ -1,7 +1,6 @@
 local wibox = require("wibox")
 local lgi = require("lgi")
 local awful = require("awful")
-local naughty = require("naughty")
 
 local Playerctl = lgi.Playerctl
 local player = nil
@@ -28,6 +27,8 @@ sh -c '
 
 --https://open.spotify.com/image/
 --https://i.scdn.co/image/
+
+local update_metadata, exit
 
 update_metadata = function()
     local artist = ""
@@ -70,7 +71,7 @@ exit = function()
 end
 
 awful.widget.watch("playerctl status", 10, function(_, stdout, _, _)
-    out = stdout:gsub('%\n', '')
+    local out = stdout:gsub('%\n', '')
     if out ~= "" and player == nil then
         player = Playerctl.Player{}
         player.on_metadata = update_metadata

@@ -1,10 +1,6 @@
-local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
-local gears = require("gears")
-local dpi = require('beautiful').xresources.apply_dpi
-
-local battery_widget = {}
+local dpi = beautiful.xresources.apply_dpi
 
 local icon_widget = wibox.widget {
     font = beautiful.glyph_font.." 10",
@@ -16,7 +12,7 @@ local level_widget = wibox.widget {
     widget = wibox.widget.textbox
 }
 
-battery_widget = wibox.widget {
+local battery_widget = wibox.widget {
     icon_widget,
     level_widget,
     spacing = dpi(4),

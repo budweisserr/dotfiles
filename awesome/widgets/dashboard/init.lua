@@ -1,13 +1,10 @@
 local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
-local xresources = require("beautiful.xresources")
-local dpi = xresources.apply_dpi
+local gears = require("gears")
 
 local apply_borders = require("lib.borders")
 local content = require("widgets.dashboard.content")
-
-local naughty = require("naughty")
 
 local rubato = require "lib.rubato"
 
@@ -15,65 +12,59 @@ local height = 663
 local width = 582
 
 local outer_padding = 24
+local off_screen = width + outer_padding
 
 local busy = false
+local is_open = false
 
 local dashboard = wibox({
-    ontop = true, 
-    type = "dock", 
+    ontop = true,
+    type = "dock",
     screen = awful.screen.focused(),
-    x = width, 
+    x = off_screen,
     y = 0,
-    width = awful.screen.focused().geometry.width, 
-    height = awful.screen.focused().geometry.height, 
+    width = awful.screen.focused().geometry.width,
+    height = awful.screen.focused().geometry.height,
     bg = "#00000000"
 })
 
+local timed = rubato.timed {
+    pos = off_screen,
+    duration = 0.75,
+    subscribed = function(pos)
+        dashboard.x = pos
+    end,
+}
+
 dashboard.open = function()
-    if busy then return end 
-
-    dashboard.visible = true
+    if busy or is_open then return end
     busy = true
-
-    timed = rubato.timed {
-        duration = 0.75, 
-        subscribed = function(pos) 
-            dashboard.x = (width + outer_padding) - pos
-
-            if pos == (width + outer_padding) then
-                busy = false
-            end
-        end
-    }
-
-    timed.target = width + outer_padding
+    is_open = true
+    dashboard.visible = true
+    timed.target = 0
+    gears.timer.start_new(timed.duration, function()
+        busy = false
+        return false
+    end)
 end
 
 dashboard.close = function()
-    if busy then return end 
-
+    if busy or not is_open then return end
     busy = true
-
-    timed = rubato.timed {
-        duration = 0.75, 
-        subscribed = function(pos) 
-            dashboard.x = pos
-            
-            if pos == (width + outer_padding) then
-                dashboard.visible = false 
-                busy = false
-            end
-        end
-    }
-
-    timed.target = width + outer_padding
+    is_open = false
+    timed.target = off_screen
+    gears.timer.start_new(timed.duration, function()
+        dashboard.visible = false
+        busy = false
+        return false
+    end)
 end
 
 dashboard.toggle = function()
-    if dashboard.x >= width then
-        dashboard.open()
-    else
+    if is_open then
         dashboard.close()
+    else
+        dashboard.open()
     end
 end
 

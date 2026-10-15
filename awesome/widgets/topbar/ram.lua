@@ -2,7 +2,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 
-local ram_widget = wibox.widget{
+local ram_widget = wibox.widget {
     {
         id = "icon",
         text = " ", -- FontAwesome icon for RAM

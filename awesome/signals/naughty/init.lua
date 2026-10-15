@@ -1,4 +1,3 @@
-local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
@@ -180,32 +179,6 @@ function notifications.notify_dwim(args, notif)
         n = naughty.notification(args)
     end
     return n
-end
-
-notifications.screenshot = function(filename)
-    local open = naughty.action {
-        name = "Open"
-    }
-
-    open:connect_signal("invoked", function(n)
-        awful.spawn("feh "..filename, false)
-    end)
-
-    local show = naughty.action {
-        name = "Show in folder"
-    }
-
-    show:connect_signal("invoked", function(n)
-        awful.spawn("thunar "..filename.."/..", false)
-    end)
-
-    naughty.notify({
-        title = "Screenshot captured!",
-        app_name = "screenshot",
-        actions = { open, show },
-        timeout = 10,
-        urgency = "normal"
-    })
 end
 
 local battery_notification
