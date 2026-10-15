@@ -1,0 +1,43 @@
+# ~/.config doubles as this repo's working tree, so it holds app caches,
+# session cookies and credential stores right next to the dotfiles we
+# actually version. Ignore everything, then opt directories back in.
+#
+# To start tracking a new config: add a `!/<dir>/` line below.
+
+/*
+!/.gitignore
+
+!/awesome/
+!/kitty/
+!/macos/
+!/nvim/
+
+# --- keep these out of the whitelisted directories ----------------------
+/awesome/.pi-subagents/
+/awesome/.claude/
+
+# --- candidates: uncomment to start tracking ---------------------------
+# !/autostart/
+# !/btop/
+# !/fastfetch/
+# !/lazygit/
+# !/mc/
+# !/picom/
+# !/qalculate/
+# !/ranger/
+# !/rofi/
+# !/systemd/
+# !/xmbwave/
+
+# --- never add a `!/` rule for these -----------------------------------
+# Already covered by `/*`. Listed so nobody whitelists them by reflex:
+#
+#   gcloud/                    cached OAuth credentials
+#   asymmetric-key-generator/  private key material
+#   Postman/                   saved API keys
+#   Vencord/  legcord/         Discord client tokens
+#   opencode/  opencode-multi-auth/  coding-agent API keys
+#   zen/  chromium/  google-chrome/  opera/  torbrowser/   session cookies
+#   Cursor/  cursor/           editor state and cookies
+#   discord/                   session tokens
+#   spicetify/                 Spotify auth
