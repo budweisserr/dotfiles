@@ -40,7 +40,15 @@ outer.right = 8
     # launcher — awesome: Super+Return, Super+r, Print
     alt-enter = 'exec-and-forget open -na kitty'
     alt-r     = 'exec-and-forget open -a Raycast'
-    alt-p     = 'exec-and-forget open -a Flameshot'
+    #
+    # screenshot — macOS's own screencapture, no extra app needed.
+    #   -i  pick a region or a window interactively
+    #   -c  force the result to the clipboard instead of a file
+    # Remove -c to save to the Desktop instead. cmd-shift-3/4/5 keep working
+    # natively and open Apple's own screenshot UI.
+    # Full path because AeroSpace is a GUI app and its PATH may not carry
+    # /usr/sbin. Needs Screen Recording permission; AeroSpace is the app asked.
+    alt-p     = 'exec-and-forget /usr/sbin/screencapture -i -c'
 
     # focus — awesome: Super+Tab, Super+Escape
     alt-h      = 'focus left'

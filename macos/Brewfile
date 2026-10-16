@@ -1,22 +1,20 @@
 # macos/Brewfile — only what this setup itself needs.
 #
-# This is deliberately NOT a port of your Arch package list. It is the three
+# This is deliberately NOT a port of your Arch package list. It is the two
 # apps aerospace.toml launches, plus the font kitty.conf asks for. Your own
-# tools belong in your own Brewfile, or in an "extras" block you add below.
+# tools belong in a Brewfile.local, as described at the bottom of this file.
 #
 # Install:  brew bundle --file=macos/Brewfile
 
 # --- the window manager the keymap drives ------------------------------
 cask "nikitabobko/tap/aerospace"
 
-# --- the three apps aerospace.toml launches ----------------------------
+# --- the two apps aerospace.toml launches ------------------------------
 # alt-enter
 cask "kitty"
 # alt-r
 cask "raycast"
-# alt-p. Drop this and the alt-p binding together if you prefer macOS's own
-# cmd-shift-4 screenshot.
-cask "flameshot"
+# alt-p uses macOS's own screencapture, so it needs no cask at all.
 
 # --- fonts -------------------------------------------------------------
 # kitty.conf sets `font_family Fira Mono`. The plain cask supplies exactly
@@ -27,8 +25,9 @@ cask "font-fira-mono"
 cask "font-fira-mono-nerd-font"
 
 # --- your own tools ----------------------------------------------------
-# `brew bundle` merges any file named Brewfile, so the neatest option is a
-# separate macos/Brewfile.local that you keep out of the repo:
+# `brew bundle` merges a file named Brewfile.local that sits next to this
+# one, which is the neatest place for your own tools. It is gitignored, so
+# it stays out of the repo:
 #
 #   brew "tmux"
 #   brew "neovim"

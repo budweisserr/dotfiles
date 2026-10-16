@@ -44,7 +44,7 @@ readline word movement needs ctrl+arrow or shell-side bindings.
 | --- | --- | --- |
 | `Return` | `alt-enter` | new kitty window |
 | `r` | `alt-r` / `cmd-space` | launcher (Raycast) |
-| `Print` | `alt-p` | screenshot (Flameshot) |
+| `Print` | `alt-p` | region screenshot to clipboard (macOS `screencapture`) |
 | — | `alt-h/j/k/l` | focus window |
 | `Tab` | `alt-tab` | previous window |
 | `Escape` | `alt-escape` | previous workspace |
@@ -94,6 +94,11 @@ current bindings: `aerospace config --get mode.main.binding --keys`.
 - **Accessibility permission is the gate.** AeroSpace needs it. The `com.apple.TCC.configuration-profile-policy` payloads on this machine grant TCC rights
   per-app, so the profile may refuse it. If the toggle in Privacy & Security is
   greyed out, that is the cause — IT can add AeroSpace to the allowlist.
+- **Screen Recording for `alt-p`.** `screencapture` runs as a child of AeroSpace,
+  so macOS asks *AeroSpace* for Screen Recording permission, not kitty, and the
+  same PPPC payloads gate it. cmd-shift-3/4/5 are handled by the system and keep
+  working either way, so the binding is convenience, not the only way to grab a
+  screenshot.
 - **Login items.** `com.apple.servicemanagement` can block registration. If
   Aerospace does not come back after a reboot, add it under System Settings →
   General → Login Items.
@@ -164,7 +169,7 @@ Two font notes, since the config references fonts Homebrew does not all supply:
 ## Files
 
 - `aerospace.toml` → linked to `~/.config/aerospace/aerospace.toml`
-- `Brewfile` — six entries: the three apps `aerospace.toml` launches, plus the
+- `Brewfile` — five entries: the two apps `aerospace.toml` launches, plus the
   two fonts `kitty.conf` asks for. Not a port of the Arch package list
 - `setup.sh` — idempotent; existing configs get moved to `.bak`, never clobbered
 - `uninstall.sh` — reverses the above from the recorded manifest
