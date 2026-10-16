@@ -15,6 +15,8 @@
 # --- keep these out of the whitelisted directories ----------------------
 /awesome/.pi-subagents/
 /awesome/.claude/
+# your own tools, merged by `brew bundle` but not part of the setup
+/macos/Brewfile.local
 
 # --- candidates: uncomment to start tracking ---------------------------
 # !/autostart/

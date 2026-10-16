@@ -100,9 +100,6 @@ current bindings: `aerospace config --get mode.main.binding --keys`.
 - **Install restrictions.** If `com.apple.applicationaccess` limits app
   installation, cask installs fail and `brew bundle` prints a failure summary.
   Formulas are unaffected.
-- **Containers.** Docker Desktop needs a paid subscription above 250 employees,
-  so the Brewfile uses `colima`. OrbStack is there as a commented option — check
-  its licensing before using it for work.
 - **No Karabiner, no yabai, no sketchybar tweaks that need SIP** — see above.
 
 ## Rollback
@@ -167,7 +164,8 @@ Two font notes, since the config references fonts Homebrew does not all supply:
 ## Files
 
 - `aerospace.toml` → linked to `~/.config/aerospace/aerospace.toml`
-- `Brewfile` — every package name verified against the Homebrew API
+- `Brewfile` — six entries: the three apps `aerospace.toml` launches, plus the
+  two fonts `kitty.conf` asks for. Not a port of the Arch package list
 - `setup.sh` — idempotent; existing configs get moved to `.bak`, never clobbered
 - `uninstall.sh` — reverses the above from the recorded manifest
 - `lib.sh` — the install record: snapshot, diff, union across runs
