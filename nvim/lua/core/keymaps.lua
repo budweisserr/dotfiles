@@ -78,9 +78,6 @@ map("n", "<leader>fa", "<cmd>Telescope find_files follow=true no_ignore=true hid
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 
-map("n", "<leader>cd", "<cmd>Cord toggle<CR>", { desc = "Toggle cord presence" })
-map("n", "<leader>ci", "<cmd>Cord idle toggle<CR>", { desc = "Toggle cord idle" })
-
 map("n", "<leader>wr", "<cmd>AutoSession restore<CR>", { desc = "Restore session for cwd" })
 map("n", "<leader>ws", "<cmd>AutoSession save<CR>", { desc = "Save session for auto session root dir" })
 

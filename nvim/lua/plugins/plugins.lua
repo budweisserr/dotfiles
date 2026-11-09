@@ -80,15 +80,6 @@ return {
         cmd = { "LazyGit" },
     },
     {
-        "vyfor/cord.nvim",
-        cmd = { "Cord" },
-        event = { "BufReadPost", "BufNewFile" },
-        config = function()
-            require("configs.cord")
-        end,
-    },
-
-    {
         "mason-org/mason.nvim",
         cmd = { "Mason", "MasonInstall", "MasonUpdate" },
         config = function()
