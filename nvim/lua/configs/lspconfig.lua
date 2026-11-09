@@ -1,21 +1,14 @@
 local lsp = require("configs.lsp")
 local on_attach = lsp.on_attach
 local on_init = lsp.on_init
-local capabilities = lsp.capabilities
 
-lsp.servers = {
-    "html",
-    "cssls",
-    "lua_ls",
-    "clangd",
-    "pyright",
-    "bashls",
-    "gopls",
-    "rust_analyzer",
-    "jsonls",
-    "yamlls",
-    "dockerls",
-}
+-- Advertise nvim-cmp's completion capabilities so servers return snippets,
+-- auto-import edits and lazy-resolved docs.
+local capabilities = lsp.capabilities
+local has_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+if has_cmp then
+    capabilities = vim.tbl_deep_extend("force", capabilities, cmp_lsp.default_capabilities())
+end
 
 local default_servers = {
     "html",
@@ -57,11 +50,53 @@ vim.lsp.config("lua_ls", {
     },
 })
 
+-- Formatting is left to conform; highlight references and show inlay hints.
+local function attach_no_format(client, bufnr)
+    on_attach(client, bufnr)
+
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+
+    if client.server_capabilities.documentHighlightProvider then
+        local group = vim.api.nvim_create_augroup("lsp_highlight_" .. bufnr, { clear = true })
+        vim.api.nvim_create_autocmd("CursorHold", {
+            buffer = bufnr,
+            group = group,
+            callback = vim.lsp.buf.document_highlight,
+        })
+        vim.api.nvim_create_autocmd("CursorMoved", {
+            buffer = bufnr,
+            group = group,
+            callback = vim.lsp.buf.clear_references,
+        })
+    end
+
+    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+
+    -- Hints are re-requested on every change; skip that while typing.
+    local inlay_group = vim.api.nvim_create_augroup("lsp_inlay_" .. bufnr, { clear = true })
+    vim.api.nvim_create_autocmd("InsertEnter", {
+        buffer = bufnr,
+        group = inlay_group,
+        callback = function()
+            vim.lsp.inlay_hint.enable(false, { bufnr = bufnr })
+        end,
+    })
+    vim.api.nvim_create_autocmd("InsertLeave", {
+        buffer = bufnr,
+        group = inlay_group,
+        callback = function()
+            vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+        end,
+    })
+end
+
 vim.lsp.config("clangd", {
     cmd = {
         "clangd",
         "--background-index",
         "--background-index-priority=low",
+        "--log=error",
         "--clang-tidy",
         "--completion-style=detailed",
         "--header-insertion=never",
@@ -76,30 +111,41 @@ vim.lsp.config("clangd", {
         "--include-cleaner-stdlib",
         "-j=4",
     },
-    on_attach = function(client, bufnr)
-        on_attach(client, bufnr)
-
-        client.server_capabilities.documentFormattingProvider = false
-        client.server_capabilities.documentRangeFormattingProvider = false
-
-        if client.server_capabilities.documentHighlightProvider then
-            local group = vim.api.nvim_create_augroup("lsp_highlight_" .. bufnr, { clear = true })
-            vim.api.nvim_create_autocmd("CursorHold", {
-                buffer = bufnr,
-                group = group,
-                callback = vim.lsp.buf.document_highlight,
-            })
-            vim.api.nvim_create_autocmd("CursorMoved", {
-                buffer = bufnr,
-                group = group,
-                callback = vim.lsp.buf.clear_references,
-            })
-        end
-
-        vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-    end,
+    on_attach = attach_no_format,
     on_init = on_init,
     capabilities = capabilities,
+})
+
+vim.lsp.config("rust_analyzer", {
+    on_attach = attach_no_format,
+    on_init = on_init,
+    capabilities = capabilities,
+    settings = {
+        ["rust-analyzer"] = {
+            numThreads = 4,
+            cachePriming = { enable = true },
+            cargo = { allTargets = false },
+            check = { command = "check", workspace = false, allTargets = false },
+            completion = {
+                autoimport = { enable = true },
+                autoself = { enable = true },
+                callable = { snippets = "fill_arguments" },
+                fullFunctionSignatures = { enable = true },
+            },
+            -- Google Rust style: one module per `use` and no glob imports.
+            imports = {
+                granularity = { group = "module", enforce = true },
+                group = { enable = true },
+                merge = { glob = false },
+            },
+            files = { exclude = { "target", "node_modules", "dist" } },
+            inlayHints = {
+                typeHints = { enable = true },
+                parameterHints = { enable = true },
+                chainingHints = { enable = true },
+            },
+        },
+    },
 })
 
 vim.lsp.config("pyright", {

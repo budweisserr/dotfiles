@@ -1,5 +1,19 @@
 local M = {}
 
+M.servers = {
+    "html",
+    "cssls",
+    "lua_ls",
+    "clangd",
+    "pyright",
+    "bashls",
+    "gopls",
+    "rust_analyzer",
+    "jsonls",
+    "yamlls",
+    "dockerls",
+}
+
 M.on_attach = function(_, bufnr)
     local function opts(desc)
         return { buffer = bufnr, desc = "LSP " .. desc }
@@ -29,23 +43,6 @@ M.on_init = function(client)
 end
 
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
-M.capabilities.textDocument.completion.completionItem = {
-    documentationFormat = { "markdown", "plaintext" },
-    snippetSupport = true,
-    preselectSupport = true,
-    insertReplaceSupport = true,
-    labelDetailsSupport = true,
-    deprecatedSupport = true,
-    commitCharactersSupport = true,
-    tagSupport = { valueSet = { 1 } },
-    resolveSupport = {
-        properties = {
-            "documentation",
-            "detail",
-            "additionalTextEdits",
-        },
-    },
-}
 
 M.defaults = function()
     vim.diagnostic.config({

@@ -34,7 +34,7 @@ o.splitbelow = true
 o.splitright = true
 o.timeoutlen = 400
 o.undofile = true
-o.updatetime = 200
+o.updatetime = 500
 o.wrap = false
 
 o.grepprg = "rg --vimgrep --smart-case"

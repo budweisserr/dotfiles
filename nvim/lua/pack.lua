@@ -8,6 +8,9 @@ local function load_plugin(spec, defer)
     if loaded[spec.name] then return end
     loaded[spec.name] = true
     for _, dep in ipairs(spec.dependencies or {}) do load_plugin(specs[dep], defer) end
+    if spec.cmd then
+        for _, cmd in ipairs(spec.cmd) do pcall(vim.api.nvim_del_user_command, cmd) end
+    end
     if spec.install == false then
         vim.pack.add({ to_pack_spec(spec) }, { confirm = false })
     else

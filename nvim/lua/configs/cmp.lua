@@ -1,5 +1,20 @@
 local cmp = require("cmp")
 
+cmp.register_source("buffer", require("cmp_buffer"))
+cmp.register_source("path", require("cmp_path").new())
+cmp.register_source("luasnip", require("cmp_luasnip").new())
+require("cmp_nvim_lsp").setup()
+require("cmp_nvim_lsp")._on_insert_enter()
+
+-- cmp-nvim-lsp only registers a source on InsertEnter. Register it as soon as
+-- a server attaches so a slow one (e.g. rust-analyzer) is usable immediately.
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = vim.api.nvim_create_augroup("cmp_nvim_lsp_attach", { clear = true }),
+    callback = function()
+        require("cmp_nvim_lsp")._on_insert_enter()
+    end,
+})
+
 return {
     completion = { completeopt = "menu,menuone,noselect" },
     mapping = {

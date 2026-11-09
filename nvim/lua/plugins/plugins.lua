@@ -17,7 +17,7 @@ return {
     },
     {
         "nvim-tree/nvim-web-devicons",
-        lazy = false,
+        event = { "BufReadPost" },
         config = function()
             require("nvim-web-devicons").setup({})
         end,
@@ -32,7 +32,6 @@ return {
     {
         "goolord/alpha-nvim",
         lazy = false,
-        dependencies = { "nvim-web-devicons" },
         cmd = { "Alpha" },
         init = function()
             if vim.fn.argc() == 0 then
@@ -47,7 +46,8 @@ return {
     },
     {
         "rmagatti/auto-session",
-        lazy = false,
+        event = { "BufReadPost" },
+        cmd = { "AutoSession" },
         config = function()
             require("configs.auto-session")
         end,
@@ -98,6 +98,7 @@ return {
     },
     {
         "williamboman/mason-lspconfig.nvim",
+        event = { "BufReadPost", "BufNewFile" },
         dependencies = { "mason.nvim" },
         config = function()
             require("configs.mason-lspconfig")
@@ -105,6 +106,7 @@ return {
     },
     {
         "rshkarin/mason-nvim-lint",
+        event = { "BufReadPost", "BufWritePost" },
         dependencies = { "mason.nvim", "nvim-lint" },
         config = function()
             require("configs.mason-lint")
@@ -112,6 +114,7 @@ return {
     },
     {
         "zapling/mason-conform.nvim",
+        event = { "BufReadPost" },
         dependencies = { "mason.nvim", "conform.nvim" },
         config = function()
             require("configs.mason-conform")
@@ -134,7 +137,7 @@ return {
     {
         "neovim/nvim-lspconfig",
         event = { "BufReadPost", "BufNewFile" },
-        dependencies = { "mason-lspconfig.nvim" },
+        dependencies = { "mason-lspconfig.nvim", "cmp-nvim-lsp" },
         config = function()
             local lsp_defaults = require("configs.lsp")
             lsp_defaults.defaults()
@@ -159,8 +162,7 @@ return {
     },
     {
         "hrsh7th/nvim-cmp",
-        lazy = false,
-        event = { "InsertEnter" },
+        event = { "BufReadPost", "BufNewFile", "InsertEnter" },
         dependencies = {
             "cmp-nvim-lsp",
             "cmp-buffer",
@@ -194,6 +196,7 @@ return {
     },
     {
         "nvim-lualine/lualine.nvim",
+        event = { "BufReadPost", "BufNewFile", "BufWritePost", "InsertEnter" },
         dependencies = { "nvim-tree/nvim-web-devicons" },
         config = function()
             require("configs.lualine")
@@ -201,6 +204,8 @@ return {
     },
     {
         "romgrk/barbar.nvim",
+        event = { "BufReadPost", "BufNewFile", "BufWritePost", "InsertEnter" },
+        cmd = { "BufferNext", "BufferPrevious" },
         dependencies = {
             "lewis6991/gitsigns.nvim", -- OPTIONAL: for git status
             "nvim-tree/nvim-web-devicons", -- OPTIONAL: for file icons
@@ -221,6 +226,7 @@ return {
     {
         "jake-stewart/multicursor.nvim",
         branch = "1.0",
+        event = { "BufReadPost", "BufNewFile", "BufWritePost", "InsertEnter" },
         config = function()
             local mc = require("multicursor-nvim")
 
