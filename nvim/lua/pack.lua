@@ -1,5 +1,11 @@
 local M, specs, loaded = {}, {}, {}
 
+-- Kept on disk even when no spec references them (e.g. commented-out fallbacks).
+local keep = {  }
+
+-- Delete installed plugins that no spec references at startup.
+local autoprune = true
+
 local function to_pack_spec(spec)
     return { src = spec[1]:match("^https?://") and spec[1] or ("https://github.com/" .. spec[1]), name = spec.name, version = spec.version }
 end
@@ -147,9 +153,34 @@ function M.setup()
 
     if #to_install > 0 then vim.pack.add(to_install, { load = false, confirm = false }) end
     for _, spec in ipairs(build_queue) do spec.build() end
+    if autoprune then M.prune() end
     for _, spec in ipairs(load_queue) do load_plugin(spec, true) end
     build_queue = nil
 end
+
+--- Delete installed plugins that no spec references.
+--- @param opts? { dry_run?: boolean }
+--- @return string[] orphans
+function M.prune(opts)
+    opts = opts or {}
+    local orphans = {}
+    for _, plugin in ipairs(vim.pack.get(nil, { info = false })) do
+        local name = plugin.spec.name
+        if not specs[name] and not keep[name] then table.insert(orphans, name) end
+    end
+    if #orphans == 0 then return orphans end
+    if opts.dry_run then
+        vim.notify("Unused plugins: " .. table.concat(orphans, ", "), vim.log.levels.WARN)
+        return orphans
+    end
+    local ok, err = pcall(vim.pack.del, orphans)
+    if not ok then vim.notify("Prune failed: " .. err, vim.log.levels.ERROR) end
+    return orphans
+end
+
+vim.api.nvim_create_user_command("PackPrune", function(ev)
+    if #M.prune({ dry_run = not ev.bang }) == 0 then vim.notify("No unused plugins") end
+end, { bang = true, desc = "Remove plugins no spec references (bang: delete)" })
 
 function M.load(names) for _, name in ipairs(names) do load_plugin(specs[name]) end end
 

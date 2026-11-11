@@ -23,12 +23,19 @@ return {
         end,
     },
     {
-        "folke/tokyonight.nvim",
+        "blazkowolf/gruber-darker.nvim",
         lazy = false,
         config = function()
             require("configs.theme")
         end,
     },
+    -- {
+    --     "folke/tokyonight.nvim",
+    --     lazy = false,
+    --     config = function()
+    --         require("configs.theme")
+    --     end,
+    -- },
     {
         "goolord/alpha-nvim",
         lazy = false,
